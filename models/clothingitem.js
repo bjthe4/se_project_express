@@ -9,7 +9,7 @@ const clothingItemSchema = new mongoose.Schema({
     required: true,
   },
 
-  avatar: {
+  imageUrl: {
     type: String,
     required: [true, "The avatar field is required"],
     validate: {
