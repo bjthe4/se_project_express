@@ -65,9 +65,12 @@ const likeItem = (req, res) => {
       }
       res.send(item);
     })
-    .catch((err) => {
-      console.error("Like Item Error:", err); // Log the error
-      res.status(500).send({ message: "Error from LikeItem" });
+    .catch((error) => {
+      console.log("Like item error", error);
+      if (error.name === "CastError") {
+        return res.status(400).send({ message: "", error: e });
+      }
+      res.status(500).send({ message: "" });
     });
 };
 
