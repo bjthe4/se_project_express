@@ -15,10 +15,10 @@ mongoose
 // const routes = require("./routes");
 // app.use(routes);
 
-const routes = require("./routes");
+// const routes = require("./routes");
 app.use(express.json());
-app.use(routes);
-
+// app.use(routes);
+2;
 app.use("/", mainRouter);
 
 app.listen(PORT, () => {
