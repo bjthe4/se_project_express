@@ -1,4 +1,5 @@
 const ClothingItem = require("../models/clothingitem");
+const mongoose = require("mongoose");
 
 const createItem = (req, res) => {
   console.log(res);
@@ -11,7 +12,7 @@ const createItem = (req, res) => {
       res.send({ data: item });
     })
     .catch((e) => {
-      res.status(500).send({ message: "Error from createItem", e });
+      res.status(400).send({ message: "Error from createItem", e });
     });
 };
 
@@ -38,12 +39,16 @@ const updateItem = (req, res) => {
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
 
+  if (!mongoose.Types.ObjectId.isValid(itemId)) {
+    return res.status(400).send({ message: "Invalid ID format" });
+  }
+
   console.log(itemId);
   ClothingItem.findByIdAndDelete(itemId)
     .orFail()
     .then((item) => res.status(204).send({}))
     .catch((e) => {
-      res.status(500).send({ message: "Error from deleteItem", e });
+      res.status(404).send({ message: "Error from deleteItem", e });
     });
 };
 
@@ -55,6 +60,7 @@ const likeItem = (req, res) => {
   }
 
   ClothingItem.findByIdAndUpdate(
+    itemId,
     { $addToSet: { likes: req.user._id } }, // add _id to the array if it's not there yet
     { new: true }
   )
@@ -68,23 +74,45 @@ const likeItem = (req, res) => {
     .catch((error) => {
       console.log("Like item error", error);
       if (error.name === "CastError") {
-        return res.status(400).send({ message: "", error: e });
+        return res.status(400).send({ message: "Error from likeItem", error });
       }
-      res.status(500).send({ message: "" });
+      if (error.name === "DocumentNotFoundError") {
+        return res.status(404).send({ message: "Document not found", error });
+      }
+      res.status(500).send({ message: "Error from likeItem" });
     });
 };
 
 const dislikeItem = (req, res) => {
   const { itemId } = req.params;
 
+  if (!mongoose.Types.ObjectId.isValid(itemId)) {
+    return res.status(400).send({ message: "Invalid ID format" });
+  }
+
   ClothingItem.findByIdAndUpdate(
+    itemId,
     { $pull: { likes: req.user._id } }, // remove _id from the array
     { new: true }
   )
     .orFail()
-    .then((item) => res.status(204).send({}))
-    .catch((e) => {
-      res.status(500).send({ message: "Error from LikeItem", e });
+    .then((item) => {
+      if (!item) {
+        return res.status(404).send({ message: "Item not found" });
+      }
+      res.send(item);
+    })
+    .catch((error) => {
+      console.log("Like item error", error);
+      if (error.name === "CastError") {
+        return res
+          .status(400)
+          .send({ message: "Error from dislikeItem", error });
+      }
+      if (error.name === "DocumentNotFoundError") {
+        return res.status(404).send({ message: "Document not found", error });
+      }
+      res.status(500).send({ message: "Error from dislikeItem" });
     });
 };
 
