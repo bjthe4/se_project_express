@@ -66,7 +66,7 @@ const deleteItem = (req, res) => {
   console.log(itemId);
   ClothingItem.findByIdAndDelete(itemId)
     .orFail()
-    .then((item) => res.status(noContentStatusCode).send({}))
+    .then((item) => res.status(okStatusCode).send({}))
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
@@ -101,17 +101,17 @@ const likeItem = (req, res) => {
       }
       res.send(likes);
     })
-    .catch((error) => {
-      console.log("Like item error", error);
-      if (error.name === "CastError") {
+    .catch((err) => {
+      console.error(err);
+      if (err.name === "CastError") {
         return res
           .status(badRequestStatusCode)
-          .send({ message: "Error from likeItem", error });
+          .send({ message: "Error from likeItem", err });
       }
-      if (error.name === "DocumentNotFoundError") {
+      if (err.name === "DocumentNotFoundError") {
         return res
           .status(notFoundStatusCode)
-          .send({ message: "Document not found", error });
+          .send({ message: "Document not found", err });
       }
       res.status(internalServerError).send({ message: "Error from likeItem" });
     });
@@ -140,17 +140,17 @@ const dislikeItem = (req, res) => {
       }
       res.send(likes);
     })
-    .catch((error) => {
-      console.log("Like item error", error);
-      if (error.name === "CastError") {
+    .catch((err) => {
+      console.error(err);
+      if (err.name === "CastError") {
         return res
           .status(badRequestStatusCode)
-          .send({ message: "Error from dislikeItem", error });
+          .send({ message: "Error from dislikeItem", err });
       }
-      if (error.name === "DocumentNotFoundError") {
+      if (err.name === "DocumentNotFoundError") {
         return res
           .status(notFoundStatusCode)
-          .send({ message: "Document not found", error });
+          .send({ message: "Document not found", err });
       }
       res
         .status(internalServerError)
