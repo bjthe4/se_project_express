@@ -6,7 +6,7 @@ const {
   internalServerError,
   notFoundStatusCode,
 } = require("../utils/status-codes");
-//GET /users
+// GET /users
 
 const getUsers = (req, res) => {
   User.find({})
@@ -48,8 +48,13 @@ const getUser = (req, res) => {
           .status(badRequestStatusCode)
           .send({ message: "An error has occurred on the server" }); // return res.status(badRequestStatusCode).send({ message: err.message });
       }
+      if (err.name === "DocumentNotFoundError") {
+        return res
+          .status(notFoundStatusCode)
+          .send({ message: "Document not found" });
+      }
       return res
-        .status(notFoundStatusCode)
+        .status(internalServerError)
         .send({ message: "An error has occurred on the server" });
     });
 };
