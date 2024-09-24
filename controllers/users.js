@@ -9,10 +9,12 @@ const {
 
 const getUsers = (req, res) => {
   User.find({})
-    .then((users) => res.status(okStatusCode).res.send(users))
+    .then((users) => res.status(okStatusCode).send(users))
     .catch((err) => {
       console.error(err);
-      return res.status(internalServerError).send({ message: err.message });
+      return res
+        .status(internalServerError)
+        .send({ message: "An error has occurred on the server" });
     });
 };
 
@@ -23,9 +25,13 @@ const createUser = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
-        return res.status(badRequestStatusCode).send({ message: err.message });
+        return res
+          .status(badRequestStatusCode)
+          .send({ message: "An error has occurred on the server" });
       }
-      return res.status(internalServerError).send({ message: err.message });
+      return res
+        .status(internalServerError)
+        .send({ message: "An error has occurred on the server" });
     });
 };
 
@@ -36,8 +42,10 @@ const getUser = (req, res) => {
     .then((user) => res.status(okStatusCode).send(user))
     .catch((err) => {
       console.error(err);
-      if (err.name === "DocumentNotFoundError") {
-        // return res.status(badRequestStatusCode).send({ message: err.message });
+      if (err.name === "CastError") {
+        return res
+          .status(badRequestStatusCode)
+          .send({ message: "An error has occurred on the server" }); // return res.status(badRequestStatusCode).send({ message: err.message });
       }
       return res.status(internalServerError).send({ message: err.message });
     });
