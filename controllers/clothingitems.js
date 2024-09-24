@@ -132,13 +132,13 @@ const dislikeItem = (req, res) => {
     { new: true }
   )
     .orFail()
-    .then((item) => {
-      if (!item) {
+    .then((likes) => {
+      if (!likes) {
         return res
           .status(notFoundStatusCode)
           .send({ message: "Item not found" });
       }
-      res.send(item);
+      res.send(likes);
     })
     .catch((error) => {
       console.log("Like item error", error);
