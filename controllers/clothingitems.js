@@ -63,7 +63,7 @@ const deleteItem = (req, res) => {
   }
 
   console.log(itemId);
-  ClothingItem.findByIdAndDelete(itemId)
+  return ClothingItem.findByIdAndDelete(itemId)
     .orFail()
     .then((item) => res.status(okStatusCode).send(item))
     .catch((err) => {
@@ -88,7 +88,7 @@ const likeItem = (req, res) => {
       .send({ message: "Invalid ID format" });
   }
 
-  ClothingItem.findByIdAndUpdate(
+  return ClothingItem.findByIdAndUpdate(
     itemId,
     { $addToSet: { likes: req.user._id } }, // add _id to the array if it's not there yet
     { new: true }
@@ -129,7 +129,7 @@ const dislikeItem = (req, res) => {
       .send({ message: "Invalid ID format" });
   }
 
-  ClothingItem.findByIdAndUpdate(
+  return ClothingItem.findByIdAndUpdate(
     itemId,
     { $pull: { likes: req.user._id } }, // remove _id from the array
     { new: true }
