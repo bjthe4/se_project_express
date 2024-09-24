@@ -22,7 +22,6 @@ app.use((req, res, next) => {
   next();
 });
 // app.use(routes);
-2;
 app.use("/", mainRouter);
 
 app.listen(PORT, () => {
