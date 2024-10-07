@@ -8,7 +8,11 @@ const badRequestStatusCode = 400;
 
 const notFoundStatusCode = 404;
 
+const confilctErrorCode = 409;
+
 const internalServerError = 500;
+
+const unathorizedErrorCode = 401;
 
 module.exports = {
   okStatusCode,
@@ -17,4 +21,6 @@ module.exports = {
   badRequestStatusCode,
   notFoundStatusCode,
   internalServerError,
+  confilctErrorCode,
+  unathorizedErrorCode,
 };

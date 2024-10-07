@@ -6,6 +6,11 @@ const clothingItem = require("./clothingitem");
 
 const { notFoundStatusCode } = require("../utils/status-codes");
 
+const { login, createUser } = require("../controllers/users");
+
+router.post("/signin", login);
+router.post("/signup", createUser);
+
 router.use("/users", userRouter);
 
 router.use("/items", clothingItem);
