@@ -6,6 +6,8 @@ const noContentStatusCode = 204;
 
 const badRequestStatusCode = 400;
 
+const forbiddenErrorCode = 403;
+
 const notFoundStatusCode = 404;
 
 const confilctErrorCode = 409;
@@ -23,4 +25,5 @@ module.exports = {
   internalServerError,
   confilctErrorCode,
   unathorizedErrorCode,
+  forbiddenErrorCode,
 };

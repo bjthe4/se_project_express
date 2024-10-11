@@ -13,7 +13,7 @@ const auth = (req, res, next) => {
   let payload;
 
   try {
-    payload = jwt.vertify(token, "some-secret-key");
+    payload = jwt.verify(token, JWT_SECRET);
   } catch (err) {
     return res
       .status(unathorizedErrorCode)
@@ -21,5 +21,7 @@ const auth = (req, res, next) => {
   }
   req.user = payload;
 
-  next();
+  return next();
 };
+
+module.exports = auth;

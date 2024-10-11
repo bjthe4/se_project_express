@@ -17,10 +17,10 @@ mongoose
 
 // const routes = require("./routes");
 app.use(express.json());
-app.use((req, res, next) => {
-  req.user = { _id: "66edabab98b2cf09fed78b0a" };
-  next();
-});
+// app.use((req, res, next) => {
+//   req.user = { _id: "66edabab98b2cf09fed78b0a" };
+//   next();
+// });
 // app.use(routes);
 app.use("/", mainRouter);
 

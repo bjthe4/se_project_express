@@ -6,6 +6,7 @@ const {
   notFoundStatusCode,
   internalServerError,
   createdStatusCode,
+  forbiddenErrorCode,
 } = require("../utils/status-codes");
 
 const createItem = (req, res) => {
@@ -73,6 +74,11 @@ const deleteItem = (req, res) => {
           .status(notFoundStatusCode)
           .send({ message: "Document not found" });
       }
+      if ((err.name = "ForbiddenError")) {
+        return res
+          .status(forbiddenErrorCode)
+          .send({ message: "Access forbidden" });
+      }
       return res
         .status(internalServerError)
         .send({ message: "Error from likeItem" });
@@ -109,6 +115,7 @@ const likeItem = (req, res) => {
           .status(badRequestStatusCode)
           .send({ message: "Error from likeItem" });
       }
+
       if (err.name === "DocumentNotFoundError") {
         return res
           .status(notFoundStatusCode)

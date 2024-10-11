@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const { getCurrentUser, updateProfile } = require("../controllers/users");
-console.log(updateProfile);
+// console.log(updateProfile);
 
 const auth = require("../middlewares/auth");
 
