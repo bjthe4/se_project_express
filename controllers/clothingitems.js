@@ -16,7 +16,9 @@ const createItem = (req, res) => {
   // // pass req.user._id as the owner
   // const { name, weather, imageUrl, owner } = req.body;
   ClothingItem.create({ name, weather, imageUrl, owner })
-    .then((card) => res.status(createdStatusCode).send({ card }))
+    .then(() =>
+      res.status(createdStatusCode).send({ name, weather, imageUrl, owner })
+    )
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
@@ -68,6 +70,7 @@ const deleteItem = (req, res) => {
     .orFail(() => {
       const error = new Error("Item ID not found");
       error.statusCode = notFoundStatusCode;
+      error.name = "DocumentNotFoundError";
       throw error;
     })
     .then((item) => res.status(okStatusCode).send(item))
@@ -148,6 +151,7 @@ const dislikeItem = (req, res) => {
     .orFail(() => {
       const error = new Error("Item ID not found");
       error.statusCode = notFoundStatusCode;
+      error.name = "DocumentNotFoundError";
       throw error;
     })
     .then((likes) => {
