@@ -65,7 +65,11 @@ const deleteItem = (req, res) => {
 
   console.log(itemId);
   return ClothingItem.findByIdAndDelete(itemId)
-    .orFail()
+    .orFail(() => {
+      const error = new Error("Item ID not found");
+      error.statusCode = notFoundStatusCode;
+      throw error;
+    })
     .then((item) => res.status(okStatusCode).send(item))
     .catch((err) => {
       console.error(err);
@@ -141,7 +145,11 @@ const dislikeItem = (req, res) => {
     { $pull: { likes: req.user._id } }, // remove _id from the array
     { new: true }
   )
-    .orFail()
+    .orFail(() => {
+      const error = new Error("Item ID not found");
+      error.statusCode = notFoundStatusCode;
+      throw error;
+    })
     .then((likes) => {
       if (!likes) {
         return res
