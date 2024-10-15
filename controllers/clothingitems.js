@@ -66,14 +66,23 @@ const deleteItem = (req, res) => {
   }
 
   console.log(itemId);
-  return ClothingItem.findByIdAndDelete(itemId)
+  return ClothingItem.findById(req.params.itemId)
     .orFail(() => {
       const error = new Error("Item ID not found");
       error.statusCode = notFoundStatusCode;
       error.name = "DocumentNotFoundError";
       throw error;
     })
-    .then((item) => res.status(okStatusCode).send(item))
+    .then((item) => {
+      if (item.owner.toString() !== req.user._id) {
+        const error = new Error();
+        error.name = "ForbiddenError";
+        throw error;
+      }
+      return item
+        .deleteOne()
+        .then((deletedItem) => res.status(okStatusCode).send(deletedItem));
+    })
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
@@ -81,7 +90,7 @@ const deleteItem = (req, res) => {
           .status(notFoundStatusCode)
           .send({ message: "Document not found" });
       }
-      if ((err.name = "ForbiddenError")) {
+      if (err.name === "ForbiddenError") {
         return res
           .status(forbiddenErrorCode)
           .send({ message: "Access forbidden" });
@@ -101,37 +110,37 @@ const likeItem = (req, res) => {
       .send({ message: "Invalid ID format" });
   }
 
-  return ClothingItem.findByIdAndUpdate(
-    itemId,
-    { $addToSet: { likes: req.user._id } }, // add _id to the array if it's not there yet
-    { new: true }
-  )
-    .orFail()
-    .then((likes) => {
-      if (!likes) {
-        return res
-          .status(notFoundStatusCode)
-          .send({ message: "Item not found" });
-      }
-      return res.send(likes);
-    })
-    .catch((err) => {
-      console.error(err);
-      if (err.name === "CastError") {
-        return res
-          .status(badRequestStatusCode)
-          .send({ message: "Error from likeItem" });
-      }
+  return (
+    ClothingItem.findByIdAndUpdate(
+      itemId,
+      { $addToSet: { likes: req.user._id } }, // add _id to the array if it's not there yet
+      { new: true }
+    )
+      .orFail()
+      .then((likes) => res.send(likes))
+      // if (!likes) {
+      //   return res
+      //     .status(notFoundStatusCode)
+      //     .send({ message: "Item not found" });
+      // }
+      .catch((err) => {
+        console.error(err);
+        if (err.name === "CastError") {
+          return res
+            .status(badRequestStatusCode)
+            .send({ message: "Error from likeItem" });
+        }
 
-      if (err.name === "DocumentNotFoundError") {
+        if (err.name === "DocumentNotFoundError") {
+          return res
+            .status(notFoundStatusCode)
+            .send({ message: "Document not found" });
+        }
         return res
-          .status(notFoundStatusCode)
-          .send({ message: "Document not found" });
-      }
-      return res
-        .status(internalServerError)
-        .send({ message: "Error from likeItem" });
-    });
+          .status(internalServerError)
+          .send({ message: "Error from likeItem" });
+      })
+  );
 };
 
 const dislikeItem = (req, res) => {

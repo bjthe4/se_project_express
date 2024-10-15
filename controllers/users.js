@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
-const User = require("../models/user");
 const bcrypt = require("bcryptjs");
+const User = require("../models/user");
 const { JWT_SECRET } = require("../utils/config");
 const {
   okStatusCode,
@@ -13,16 +13,16 @@ const {
 } = require("../utils/status-codes");
 // GET /users
 
-const getUsers = (req, res) => {
-  User.find({})
-    .then((users) => res.status(okStatusCode).send(users))
-    .catch((err) => {
-      console.error(err);
-      return res
-        .status(internalServerError)
-        .send({ message: "An error has occurred on the server" });
-    });
-};
+// const getUsers = (req, res) => {
+//   User.find({})
+//     .then((users) => res.status(okStatusCode).send(users))
+//     .catch((err) => {
+//       console.error(err);
+//       return res
+//         .status(internalServerError)
+//         .send({ message: "An error has occurred on the server" });
+//     });
+// };
 
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
@@ -38,7 +38,7 @@ const createUser = (req, res) => {
           .status(badRequestStatusCode)
           .send({ message: "An error has occurred on the server" });
       }
-      if (err.name === 11000) {
+      if (err.code === 11000) {
         return res
           .status(confilctErrorCode)
           .send({ message: "Duplicate error" });
@@ -49,32 +49,37 @@ const createUser = (req, res) => {
     });
 };
 
-const getUser = (req, res) => {
-  const { userId } = req.params;
-  User.findById(userId)
-    .orFail()
-    .then((user) => res.status(okStatusCode).send(user))
-    .catch((err) => {
-      console.error(err);
-      if (err.name === "CastError") {
-        return res
-          .status(badRequestStatusCode)
-          .send({ message: "An error has occurred on the server" }); // return res.status(badRequestStatusCode).send({ message: err.message });
-      }
-      if (err.name === "DocumentNotFoundError") {
-        return res
-          .status(notFoundStatusCode)
-          .send({ message: "Document not found" });
-      }
-      return res
-        .status(internalServerError)
-        .send({ message: "An error has occurred on the server" });
-    });
-};
+// const getUser = (req, res) => {
+//   const { userId } = req.params;
+//   User.findById(userId)
+//     .orFail()
+//     .then((user) => res.status(okStatusCode).send(user))
+//     .catch((err) => {
+//       console.error(err);
+//       if (err.name === "CastError") {
+//         return res
+//           .status(badRequestStatusCode)
+//           .send({ message: "An error has occurred on the server" }); // return res.status(badRequestStatusCode).send({ message: err.message });
+//       }
+//       if (err.name === "DocumentNotFoundError") {
+//         return res
+//           .status(notFoundStatusCode)
+//           .send({ message: "Document not found" });
+//       }
+//       return res
+//         .status(internalServerError)
+//         .send({ message: "An error has occurred on the server" });
+//     });
+// };
 
 const login = (req, res) => {
   const { email, password } = req.body;
 
+  if (!email || !password) {
+    return res
+      .status(badRequestStatusCode)
+      .send({ message: "The password and email fields are required" });
+  }
   return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
@@ -84,7 +89,7 @@ const login = (req, res) => {
       res.send({ token });
     })
     .catch((err) => {
-      if (err === "Incorrect email or password") {
+      if (err.message === "Incorrect email or password") {
         return res
           .status(unathorizedErrorCode)
           .send({ message: "Authorized required" });
@@ -119,7 +124,7 @@ const getCurrentUser = (req, res) => {
 
 const updateProfile = (req, res) => {
   User.findByIdAndUpdate(
-    { id: req.user._id },
+    { _id: req.user._id },
     { name: req.body.name, avatar: req.body.avatar },
     { new: true, runValidators: true }
   )
@@ -127,7 +132,7 @@ const updateProfile = (req, res) => {
     .then((user) => res.status(okStatusCode).send(user))
     .catch((err) => {
       console.error(err);
-      if (err === "ValidationError") {
+      if (err.name === "ValidationError") {
         return res
           .status(badRequestStatusCode)
           .send({ message: "An error has occurred on the server" });
@@ -139,9 +144,9 @@ const updateProfile = (req, res) => {
 };
 
 module.exports = {
-  getUsers,
+  // getUsers,
   createUser,
-  getUser,
+  // getUser,
   login,
   getCurrentUser,
   updateProfile,
