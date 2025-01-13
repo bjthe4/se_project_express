@@ -86,9 +86,18 @@ const login = (req, res) => {
         expiresIn: "7d",
       });
       // return the token to the client
-      res.send({ token });
+      res.send({
+        token,
+        user: {
+          name: user.name,
+          avatar: user.avatar,
+          email: user.email,
+          _id: user._id,
+        },
+      });
     })
     .catch((err) => {
+      console.error(err);
       if (err.message === "Incorrect email or password") {
         return res
           .status(unathorizedErrorCode)
