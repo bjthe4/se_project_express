@@ -4,19 +4,28 @@ const userRouter = require("./users");
 
 const clothingItem = require("./clothingitem");
 
-const { notFoundStatusCode } = require("../utils/status-codes");
+// const { notFoundStatusCode } = require("../utils/status-codes");
 
 const { login, createUser } = require("../controllers/users");
 
-router.post("/signin", login);
-router.post("/signup", createUser);
+// const { validateId, validateCardBody } = require("../middlewares/validation");
+
+const { NotFoundStatusError } = require("../middlewares/error-handler");
+
+const {
+  validateUserSignUp,
+  validateUserSignIn,
+} = require("../middlewares/validation");
+
+router.post("/signin", validateUserSignIn, login);
+router.post("/signup", validateUserSignUp, createUser);
 
 router.use("/users", userRouter);
 
 router.use("/items", clothingItem);
 
-router.use((req, res) => {
-  res.status(notFoundStatusCode).send({ message: "Router not found" });
+router.use((req, res, next) => {
+  next(new NotFoundStatusError("Router not found"));
 });
 
 module.exports = router;

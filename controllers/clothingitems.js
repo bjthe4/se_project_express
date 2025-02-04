@@ -2,14 +2,16 @@ const mongoose = require("mongoose");
 const ClothingItem = require("../models/clothingitem");
 const {
   okStatusCode,
-  badRequestStatusCode,
   notFoundStatusCode,
-  internalServerError,
   createdStatusCode,
-  forbiddenErrorCode,
 } = require("../utils/status-codes");
 
-const createItem = (req, res) => {
+const { BadRequestError } = require("../middlewares/BadRequestError");
+const { NotFoundStatusError } = require("../middlewares/NotFoundStatusError");
+const { InternalServerCode } = require("../middlewares/InternalServerCode");
+const { ForbiddenError } = require("../middlewares/error-handler");
+
+const createItem = (req, res, next) => {
   const { name, weather, imageUrl } = req.body;
   const owner = req.user._id;
 
@@ -20,22 +22,18 @@ const createItem = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
-        return res
-          .status(badRequestStatusCode)
-          .send({ message: "Error from createItem" });
+        return next(new BadRequestError("Error from createItem"));
       }
-      return res
-        .status(internalServerError)
-        .send({ message: "Error from createItem" });
+      return next(new InternalServerCode("Error from createItem"));
     });
 };
 
-const getItems = (req, res) => {
+const getItems = (req, res, next) => {
   ClothingItem.find({})
     .then((items) => res.status(okStatusCode).send(items))
     .catch((err) => {
       console.error(err);
-      res.status(internalServerError).send({ message: "Error from getItems" });
+      next(new InternalServerCode("Error from getItems"));
     });
 };
 
@@ -54,13 +52,11 @@ const getItems = (req, res) => {
 //     });
 // };
 
-const deleteItem = (req, res) => {
+const deleteItem = (req, res, next) => {
   const { itemId } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(itemId)) {
-    return res
-      .status(badRequestStatusCode)
-      .send({ message: "Invalid ID format" });
+    return next(BadRequestError("Invalid ID format"));
   }
 
   console.log(itemId);
@@ -84,28 +80,20 @@ const deleteItem = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
-        return res
-          .status(notFoundStatusCode)
-          .send({ message: "Document not found" });
+        return next(new NotFoundStatusError("Document not found"));
       }
       if (err.name === "ForbiddenError") {
-        return res
-          .status(forbiddenErrorCode)
-          .send({ message: "Access forbidden" });
+        return next(new ForbiddenError("Access forbidden"));
       }
-      return res
-        .status(internalServerError)
-        .send({ message: "Error from likeItem" });
+      return next(new InternalServerCode("Error from likeItem"));
     });
 };
 
-const likeItem = (req, res) => {
+const likeItem = (req, res, next) => {
   const { itemId } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(itemId)) {
-    return res
-      .status(badRequestStatusCode)
-      .send({ message: "Invalid ID format" });
+    return next(new BadRequestError("Invalid ID format"));
   }
 
   return (
@@ -124,30 +112,22 @@ const likeItem = (req, res) => {
       .catch((err) => {
         console.error(err);
         if (err.name === "CastError") {
-          return res
-            .status(badRequestStatusCode)
-            .send({ message: "Error from likeItem" });
+          return next(new BadRequestError("Error from likeItem"));
         }
 
         if (err.name === "DocumentNotFoundError") {
-          return res
-            .status(notFoundStatusCode)
-            .send({ message: "Document not found" });
+          return next(new NotFoundStatusError("Document not found"));
         }
-        return res
-          .status(internalServerError)
-          .send({ message: "Error from likeItem" });
+        return next(new InternalServerCode("Error from likeItem"));
       })
   );
 };
 
-const dislikeItem = (req, res) => {
+const dislikeItem = (req, res, next) => {
   const { itemId } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(itemId)) {
-    return res
-      .status(badRequestStatusCode)
-      .send({ message: "Invalid ID format" });
+    return next(new BadRequestError("Invalid ID format"));
   }
 
   return ClothingItem.findByIdAndUpdate(
@@ -172,18 +152,12 @@ const dislikeItem = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "CastError") {
-        return res
-          .status(badRequestStatusCode)
-          .send({ message: "Error from dislikeItem" });
+        return next(new BadRequestError("Error from dislikeItem"));
       }
       if (err.name === "DocumentNotFoundError") {
-        return res
-          .status(notFoundStatusCode)
-          .send({ message: "Document not found" });
+        return next(new NotFoundStatusError("Document not found"));
       }
-      return res
-        .status(internalServerError)
-        .send({ message: "Error from dislikeItem" });
+      return next(new InternalServerCode("Error from dislikeItem"));
     });
 };
 

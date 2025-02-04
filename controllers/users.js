@@ -2,15 +2,13 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const User = require("../models/user");
 const { JWT_SECRET } = require("../utils/config");
-const {
-  okStatusCode,
-  createdStatusCode,
-  badRequestStatusCode,
-  internalServerError,
-  notFoundStatusCode,
-  confilctErrorCode,
-  unathorizedErrorCode,
-} = require("../utils/status-codes");
+const { okStatusCode, createdStatusCode } = require("../utils/status-codes");
+const { BadRequestError } = require("../middlewares/BadRequestError");
+const { InternalServerCode } = require("../middlewares/InternalServerCode");
+const { ConfilctError } = require("../middlewares/ConfilctError");
+const { UnathorizedError } = require("../middlewares/UnathorizedError");
+const { NotFoundStatusError } = require("../middlewares/NotFoundStatusError");
+
 // GET /users
 
 // const getUsers = (req, res) => {
@@ -24,7 +22,7 @@ const {
 //     });
 // };
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const { name, avatar, email, password } = req.body;
 
   bcrypt
@@ -34,18 +32,14 @@ const createUser = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
-        return res
-          .status(badRequestStatusCode)
-          .send({ message: "An error has occurred on the server" });
+        return next(new BadRequestError("An error has occurred on the server"));
       }
       if (err.code === 11000) {
-        return res
-          .status(confilctErrorCode)
-          .send({ message: "Duplicate error" });
+        return next(new ConfilctError("Duplicate error"));
       }
-      return res
-        .status(internalServerError)
-        .send({ message: "An error has occurred on the server" });
+      return next(
+        new InternalServerCode("An error has occurred on the server")
+      );
     });
 };
 
@@ -72,13 +66,13 @@ const createUser = (req, res) => {
 //     });
 // };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res
-      .status(badRequestStatusCode)
-      .send({ message: "The password and email fields are required" });
+    return next(
+      new BadRequestError("The password and email fields are required")
+    );
   }
   return User.findUserByCredentials(email, password)
     .then((user) => {
@@ -99,39 +93,35 @@ const login = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.message === "Incorrect email or password") {
-        return res
-          .status(unathorizedErrorCode)
-          .send({ message: "Authorized required" });
+        return next(new UnathorizedError("Authorized required"));
       }
-      return res
-        .status(internalServerError)
-        .send({ message: "An error has occurred on the server" });
+      return next(
+        new InternalServerCode("An error has occurred on the server")
+      );
     });
 };
 
-const getCurrentUser = (req, res) => {
+const getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .orFail()
     .then((user) => res.status(okStatusCode).send(user))
     .catch((err) => {
       console.error(err);
       if (err === "DocumentNotFoundError") {
-        return res
-          .status(notFoundStatusCode)
-          .send({ message: "Document not found" });
+        return next(new NotFoundStatusError("Document not found"));
       }
       if (err === "CastError") {
-        return res
-          .status(badRequestStatusCode)
-          .send({ message: "An error has occurred on the server" });
+        return next(new BadRequestError()).send({
+          message: "An error has occurred on the server",
+        });
       }
-      return res
-        .status(internalServerError)
-        .send({ message: "An error has occurred on the server" });
+      return next(
+        new InternalServerCode("An error has occurred on the server")
+      );
     });
 };
 
-const updateProfile = (req, res) => {
+const updateProfile = (req, res, next) => {
   User.findByIdAndUpdate(
     { _id: req.user._id },
     { name: req.body.name, avatar: req.body.avatar },
@@ -142,13 +132,11 @@ const updateProfile = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
-        return res
-          .status(badRequestStatusCode)
-          .send({ message: "An error has occurred on the server" });
+        return next(new BadRequestError("An error has occurred on the server"));
       }
-      return res
-        .status(internalServerError)
-        .send({ message: "An error has occurred on the server" });
+      return next(
+        new InternalServerCode("An error has occurred on the server")
+      );
     });
 };
 

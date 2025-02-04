@@ -1,4 +1,11 @@
-const errorHandler = (err, req, res, next) => {
+class ForbiddenError extends Error {
+  constructor(message) {
+    super(message);
+    this.statusCode = 403;
+  }
+}
+
+const errorHandler = (err, req, res) => {
   console.error(err.stack);
 
   const statusCode = err.status || 500;
@@ -14,4 +21,7 @@ const errorHandler = (err, req, res, next) => {
   });
 };
 
-module.exports = errorHandler;
+module.exports = {
+  ForbiddenError,
+  errorHandler,
+};
