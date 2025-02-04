@@ -7,3 +7,8 @@ The back-end project is focused on creating a server for the WTWR application. Y
 
 ### Testing
 Before committing your code, make sure you edit the file `sprint.txt` in the root folder. The file `sprint.txt` should contain the number of the sprint you're currently working on. For ex. 12
+
+## Deployed Application Links
+
+- **Frontend:** [https://www.gcpp.demo.blinklab.com](https://www.gcpp.demo.blinklab.com)
+- **Backend API:** [https://api.gcpp.demo.blinklab.com](https://api.gcpp.demo.blinklab.com)
