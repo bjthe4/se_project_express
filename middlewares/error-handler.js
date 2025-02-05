@@ -5,10 +5,10 @@ class ForbiddenError extends Error {
   }
 }
 
-const errorHandler = (err, req, res) => {
+const errorHandler = (err, req, res, next) => {
   console.error(err.stack);
 
-  const statusCode = err.status || 500;
+  const statusCode = err.statusCode || 500;
   const message = err.message || "An unexpected error occured";
 
   res.status(statusCode).json({
@@ -19,6 +19,7 @@ const errorHandler = (err, req, res) => {
       ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
     },
   });
+  next();
 };
 
 module.exports = {

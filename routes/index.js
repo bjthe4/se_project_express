@@ -10,7 +10,7 @@ const { login, createUser } = require("../controllers/users");
 
 // const { validateId, validateCardBody } = require("../middlewares/validation");
 
-const { NotFoundStatusError } = require("../middlewares/error-handler");
+const { NotFoundStatusError } = require("../middlewares/NotFoundStatusError");
 
 const {
   validateUserSignUp,

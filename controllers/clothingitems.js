@@ -9,7 +9,7 @@ const {
 const { BadRequestError } = require("../middlewares/BadRequestError");
 const { NotFoundStatusError } = require("../middlewares/NotFoundStatusError");
 const { InternalServerCode } = require("../middlewares/InternalServerCode");
-const { ForbiddenError } = require("../middlewares/error-handler");
+const { ForbiddenError } = require("../middlewares/ForbiddenError");
 
 const createItem = (req, res, next) => {
   const { name, weather, imageUrl } = req.body;
